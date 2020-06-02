@@ -27,14 +27,21 @@ extern "C" void *memory_init(
         }
     }
 
-    if (dramsim)
-        mm = (mm_t *) (new mm_dramsim2_t(1 << id_bits));
-    else
-        mm = (mm_t *) (new mm_magic_t);
+    std::string loadmem = "/home/ubuntu/test.hex";
 
-    mm->init(mem_size, word_size, line_size);
+    void *mem = init_for_load(memsize, id_bits, dramsim);
+    load_mem(mem, loadmem.c_str(), 32 / 8, 1);
 
     return mm;
+}
+
+void *init_for_load(long long int mem_size, long long int word_size,
+		long long int line_size, long long int id_bits, bool dramsim) {
+    std::unique_ptr<mm_t> mem;
+
+    mem.reset(dramsim ? (mm_t*) new mm_dramsim2_t(1 << id_bits) : (mm_t*) new mm_magic_t);
+    mem->init(memsize, word_size, line_size);
+    return mem->get_data();
 }
 
 extern "C" void memory_tick(
