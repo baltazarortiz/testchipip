@@ -6,6 +6,8 @@
 #include "mm_dramsim2.h"
 
 int dramsim = -1;
+std::string loadmem;
+bool fastloadmem;
 
 extern "C" void *memory_init(
         long long int mem_size,
@@ -13,7 +15,6 @@ extern "C" void *memory_init(
         long long int line_size,
         long long int id_bits)
 {
-    mm_t *mm;
     s_vpi_vlog_info info;
 
     if (dramsim < 0) {
@@ -27,21 +28,20 @@ extern "C" void *memory_init(
         }
     }
 
-    std::string loadmem = "/home/ubuntu/test.hex";
-
-    void *mem = init_for_load(memsize, id_bits, dramsim);
-    load_mem(mem, loadmem.c_str(), 32 / 8, 1);
-
-    return mm;
-}
-
-void *init_for_load(long long int mem_size, long long int word_size,
-		long long int line_size, long long int id_bits, bool dramsim) {
     std::unique_ptr<mm_t> mem;
-
     mem.reset(dramsim ? (mm_t*) new mm_dramsim2_t(1 << id_bits) : (mm_t*) new mm_magic_t);
-    mem->init(memsize, word_size, line_size);
-    return mem->get_data();
+    mem->init(mem_size, word_size, line_size);
+
+    void* mems[1];
+    mems[0] = mem->get_data();
+
+    if (mems[0] && fastloadmem && !loadmem.empty()) {
+	    fprintf(stdout, "[fast loadmem] %s\n", loadmem.c_str());
+	    //::load_mem(mems, loadmem.c_str(), MEM_DATA_BITS / 8, 1);
+	    load_mem(mems, loadmem.c_str(), 32 / 8, 1);
+    }
+
+    return mems[0];
 }
 
 extern "C" void memory_tick(
