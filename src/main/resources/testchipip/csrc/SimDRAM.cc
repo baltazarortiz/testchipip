@@ -39,7 +39,8 @@ extern "C" void *memory_init(
     if (mm && fastloadmem && !loadmem.empty()) {
 	    fprintf(stdout, "[fast loadmem] %s\n", loadmem.c_str());
 	    //::load_mem(mems, loadmem.c_str(), MEM_DATA_BITS / 8, 1);
-	    load_mem((void**)mm->get_data(), loadmem.c_str(), 32 / 8, 1);
+	    //load_mem((void**)mm->get_data(), loadmem.c_str(), 32 / 8, 1);
+	    load_mem((void**)mm->get_data(), loadmem.c_str(), 64 / 8, 1);
     }
 
     return mm;
