@@ -6,8 +6,6 @@
 #include "mm_dramsim2.h"
 
 int dramsim = -1;
-std::string loadmem;
-bool fastloadmem;
 
 extern "C" void *memory_init(
         long long int mem_size,
@@ -18,6 +16,8 @@ extern "C" void *memory_init(
     mm_t *mm;
     s_vpi_vlog_info info;
     std::string ini_dir = "dramsim2_ini";
+    std::string loadmem;
+    bool fastloadmem;
 
     if (dramsim < 0) {
         if (!vpi_get_vlog_info(&info))
@@ -25,8 +25,12 @@ extern "C" void *memory_init(
 
         dramsim = 0;
         for (int i = 1; i < info.argc; i++) {
-            if (strcmp(info.argv[i], "+dramsim") == 0)
+            if (std::string(info.argv[i]).find("+dramsim") == 0)
                 dramsim = 1;
+            if (std::string(info.argv[i]).find("+fastloadmem") == 0)
+                fastloadmem = true;
+            if (std::string(info.argv[i]).find("+loadmem=") == 0)
+                loadmem = info.argv[i] + strlen("+loadmem=");
             if (std::string(info.argv[i]).find("+dramsim_ini_dir=") == 0)
                 ini_dir = info.argv[i] + strlen("+dramsim_ini_dir=");
         }
