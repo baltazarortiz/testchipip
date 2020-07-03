@@ -42,12 +42,15 @@ extern "C" void *memory_init(
         mm = (mm_t *) (new mm_magic_t);
 
     mm->init(mem_size, word_size, line_size);
+    void * mem_data = mm->get_data();
 
     if (mm && fastloadmem && !loadmem.empty()) {
 	    fprintf(stdout, "[fast loadmem] %s\n", loadmem.c_str());
-	    //::load_mem(mems, loadmem.c_str(), MEM_DATA_BITS / 8, 1);
-	    //load_mem((void**)mm->get_data(), loadmem.c_str(), 32 / 8, 1);
-	    load_mem((void**)mm->get_data(), loadmem.c_str(), 64 / 8, 1);
+
+	    // The load_mem function expects an array of pointers, one to each memory channel.
+	    // For single channel, we just pass a double pointer to mem_data.
+	    // The line_size argument is specified in bytes.
+	    load_mem((void**)&mem_data, loadmem.c_str(), 64, 1);
     }
 
     return mm;
